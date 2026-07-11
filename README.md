@@ -27,6 +27,11 @@ The default output path is:
 Runtime data and raws are copied into the user's data tree on first launch and
 linked into a runtime tree by the launcher.
 
+## Latest Release
+
+Download the current Debian package from the
+[latest GitHub release](https://github.com/utah27397/dwarf-fortress-0.47.05-linux-x86_64-packaging/releases/latest).
+
 ## Related Repositories
 
 - [Dwarf Fortress 0.47.05 Linux x86_64 packaging](https://github.com/utah27397/dwarf-fortress-0.47.05-linux-x86_64-packaging)
