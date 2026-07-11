@@ -1,0 +1,116 @@
+#!/bin/sh
+
+APPNAME="dwarf-fortress-0.47.05"
+PACKAGE="dwarf-fortress-0.47.05"
+SYSTEMDIR="${DF_SYSTEMDIR:-/opt/dwarf-fortress-0.47.05}"
+FILE_MANIFEST="${DF_DEFAULT_FILE_MANIFEST:-/usr/share/$PACKAGE/default-user-files}"
+DIR_MANIFEST="${DF_DEFAULT_DIR_MANIFEST:-/usr/share/$PACKAGE/default-user-dirs}"
+
+is_safe_relpath() {
+    case "$1" in
+        ""|/*|../*|*/../*|*/..|.) return 1 ;;
+    esac
+
+    return 0
+}
+
+prune_empty_parents() {
+    datadir="$1"
+    rel="$2"
+    dir="$(dirname "$rel")"
+
+    while [ "$dir" != "." ] && [ "$dir" != "" ]; do
+        is_safe_relpath "$dir" || return 0
+        rmdir -- "$datadir/$dir" 2>/dev/null || return 0
+        dir="$(dirname "$dir")"
+    done
+}
+
+cleanup_files() {
+    datadir="$1"
+
+    [ -d "$SYSTEMDIR" ] || return 0
+    [ -f "$FILE_MANIFEST" ] || return 0
+    [ -d "$datadir" ] || return 0
+    [ ! -L "$datadir" ] || return 0
+
+    while IFS= read -r rel || [ -n "$rel" ]; do
+        case "$rel" in ""|\#*) continue ;; esac
+        is_safe_relpath "$rel" || continue
+
+        [ -f "$SYSTEMDIR/$rel" ] || continue
+        [ -f "$datadir/$rel" ] || continue
+        [ ! -L "$datadir/$rel" ] || continue
+
+        if cmp -s "$datadir/$rel" "$SYSTEMDIR/$rel"; then
+            rm -f -- "$datadir/$rel"
+            prune_empty_parents "$datadir" "$rel"
+        fi
+    done < "$FILE_MANIFEST"
+}
+
+cleanup_dirs() {
+    datadir="$1"
+
+    [ -f "$DIR_MANIFEST" ] || return 0
+    [ -d "$datadir" ] || return 0
+    [ ! -L "$datadir" ] || return 0
+
+    awk '{ print length($0) "\t" $0 }' "$DIR_MANIFEST" | sort -rn | cut -f2- |
+    while IFS= read -r rel || [ -n "$rel" ]; do
+        case "$rel" in ""|\#*) continue ;; esac
+        is_safe_relpath "$rel" || continue
+
+        rmdir -- "$datadir/$rel" 2>/dev/null || true
+    done
+
+    rmdir "$datadir" 2>/dev/null || true
+}
+
+cleanup_dir() {
+    datadir="$1"
+
+    cleanup_files "$datadir"
+    cleanup_dirs "$datadir"
+}
+
+cleanup_all_users() {
+    [ "$(id -u)" -eq 0 ] || return 0
+    command -v getent >/dev/null 2>&1 || return 0
+    command -v runuser >/dev/null 2>&1 || return 0
+
+    getent passwd | while IFS=: read -r user _ uid _ _ home _; do
+        case "$uid" in
+            ""|*[!0-9]*) continue ;;
+        esac
+
+        [ "$uid" -ge 1000 ] || continue
+        [ "$uid" -ne 65534 ] || continue
+        [ -n "$home" ] || continue
+        [ -d "$home" ] || continue
+
+        datadir="$home/.local/share/$APPNAME"
+        [ -d "$datadir" ] || continue
+        [ ! -L "$datadir" ] || continue
+
+        runuser -u "$user" -- env \
+            "DF_SYSTEMDIR=$SYSTEMDIR" \
+            "DF_DEFAULT_FILE_MANIFEST=$FILE_MANIFEST" \
+            "DF_DEFAULT_DIR_MANIFEST=$DIR_MANIFEST" \
+            "$0" "$datadir" || true
+    done
+}
+
+case "${1:-}" in
+    --all-users)
+        cleanup_all_users
+        ;;
+    "")
+        cleanup_dir "${XDG_DATA_HOME:-$HOME/.local/share}/$APPNAME"
+        ;;
+    *)
+        cleanup_dir "$1"
+        ;;
+esac
+
+exit 0

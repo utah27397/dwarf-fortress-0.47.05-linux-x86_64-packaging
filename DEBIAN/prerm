@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    remove)
+        if [ -x /usr/lib/dwarf-fortress-0.47.05/clean-user-defaults ]; then
+            /usr/lib/dwarf-fortress-0.47.05/clean-user-defaults --all-users || true
+        fi
+        ;;
+esac
+
+exit 0

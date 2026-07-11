@@ -1,0 +1,139 @@
+#!/bin/sh
+set -eu
+
+APPNAME="dwarf-fortress-0.47.05"
+LEGACY_APPNAMES="dwarf-fortress-47.05 dwarf-fortress-local"
+SYSTEMDIR="/opt/dwarf-fortress-0.47.05"
+DATAROOT="${XDG_DATA_HOME:-$HOME/.local/share}"
+USERDATADIR="$DATAROOT/$APPNAME"
+
+if [ -z "${XDG_RUNTIME_DIR:-}" ]; then
+    echo "XDG_RUNTIME_DIR is not set. Run this from a normal user login session, not sudo." >&2
+    exit 1
+fi
+
+RUNTIMEDIR="$XDG_RUNTIME_DIR/$APPNAME"
+LAUNCHER="df"
+
+MUTABLE_TOPLEVEL="data raw"
+OVERLAY_TOPLEVEL="libs"
+NCURSES_LIB="/usr/lib/x86_64-linux-gnu/libncurses.so.6"
+NCURSESW_LIB="/usr/lib/x86_64-linux-gnu/libncursesw.so.6"
+LIBGCC_S_LIB="/usr/lib/x86_64-linux-gnu/libgcc_s.so.1"
+LIBSTDCXX_LIB="/usr/lib/x86_64-linux-gnu/libstdc++.so.6"
+
+if [ ! -d "$SYSTEMDIR" ]; then
+    echo "Missing package installation directory: $SYSTEMDIR" >&2
+    exit 1
+fi
+
+if [ ! -x "$SYSTEMDIR/$LAUNCHER" ]; then
+    echo "Missing or non-executable launcher: $SYSTEMDIR/$LAUNCHER" >&2
+    exit 1
+fi
+
+if [ ! -e "$NCURSES_LIB" ]; then
+    echo "Missing ncurses compatibility target: $NCURSES_LIB" >&2
+    exit 1
+fi
+
+if [ ! -e "$NCURSESW_LIB" ]; then
+    echo "Missing ncurses compatibility target: $NCURSESW_LIB" >&2
+    exit 1
+fi
+
+if [ ! -e "$LIBGCC_S_LIB" ]; then
+    echo "Missing runtime library target: $LIBGCC_S_LIB" >&2
+    exit 1
+fi
+
+if [ ! -e "$LIBSTDCXX_LIB" ]; then
+    echo "Missing runtime library target: $LIBSTDCXX_LIB" >&2
+    exit 1
+fi
+
+seed_mutable_tree() {
+    src="$1"
+    dest="$2"
+
+    if [ -d "$src" ]; then
+        mkdir -p "$dest"
+        cp -a -n "$src/." "$dest/"
+    elif [ ! -e "$dest" ]; then
+        mkdir -p "$dest"
+    fi
+}
+
+merge_legacy_tree() {
+    src="$1"
+    dest="$2"
+
+    [ -d "$src" ] || return 0
+    [ ! -L "$src" ] || return 0
+
+    mkdir -p "$dest"
+    cp -a -n "$src/." "$dest/"
+}
+
+mkdir -p "$USERDATADIR"
+chmod 700 "$USERDATADIR"
+
+for name in $MUTABLE_TOPLEVEL; do
+    seed_mutable_tree "$SYSTEMDIR/$name" "$USERDATADIR/$name"
+    for legacy_appname in $LEGACY_APPNAMES; do
+        merge_legacy_tree "$DATAROOT/$legacy_appname/$name" "$USERDATADIR/$name"
+    done
+done
+
+find "$USERDATADIR" -type d -exec chmod 700 {} \;
+find "$USERDATADIR" -type f -exec chmod 600 {} \;
+
+rm -rf "$RUNTIMEDIR" || exit 1
+mkdir -p "$RUNTIMEDIR" || exit 1
+mkdir -p "$RUNTIMEDIR/libs" || exit 1
+
+for item in "$SYSTEMDIR"/*; do
+    base="$(basename "$item")"
+
+    case " $MUTABLE_TOPLEVEL " in
+        *" $base "*) continue ;;
+    esac
+
+    case " $OVERLAY_TOPLEVEL " in
+        *" $base "*) continue ;;
+    esac
+
+    ln -s "$item" "$RUNTIMEDIR/$base"
+done
+
+for item in "$SYSTEMDIR/libs"/*; do
+    base="$(basename "$item")"
+
+    case "$base" in
+        libncurses.so.5|libncursesw.so.5|libgcc_s.so.1|libstdc++.so.6) continue ;;
+    esac
+
+    case "$base" in
+        Dwarf_Fortress|libgraphics.so)
+            cp -a "$item" "$RUNTIMEDIR/libs/$base"
+            continue
+            ;;
+    esac
+
+    ln -s "$item" "$RUNTIMEDIR/libs/$base"
+done
+
+ln -s "$NCURSES_LIB" "$RUNTIMEDIR/libs/libncurses.so.5"
+ln -s "$NCURSESW_LIB" "$RUNTIMEDIR/libs/libncursesw.so.5"
+ln -s "$LIBGCC_S_LIB" "$RUNTIMEDIR/libs/libgcc_s.so.1"
+ln -s "$LIBSTDCXX_LIB" "$RUNTIMEDIR/libs/libstdc++.so.6"
+
+for name in $MUTABLE_TOPLEVEL; do
+    ln -s "$USERDATADIR/$name" "$RUNTIMEDIR/$name"
+done
+
+cd "$RUNTIMEDIR" || exit 1
+
+export SDL_AUDIODRIVER="${SDL_AUDIODRIVER:-pulse}"
+
+exec "./$LAUNCHER" "$@"

@@ -1,0 +1,9 @@
+Package: dwarf-fortress-0.47.05
+Version: 0.47.05-1df04705.1
+Section: games
+Priority: optional
+Architecture: amd64
+Maintainer: utah27397 <302294215+utah27397@users.noreply.github.com>
+Depends: libc6, libgcc-s1 | libgcc1, libstdc++6, libgl1, libglu1-mesa, libgtk2.0-0t64 | libgtk2.0-0, libglib2.0-0t64 | libglib2.0-0, libncurses6, libncursesw6, libsdl1.2debian, libsdl-image1.2, libsdl-ttf2.0-0, zlib1g
+Description: Dwarf Fortress 0.47.05 Linux x86_64 package
+ Packaged Dwarf Fortress 0.47.05 Linux x86_64 release installed under /opt.
