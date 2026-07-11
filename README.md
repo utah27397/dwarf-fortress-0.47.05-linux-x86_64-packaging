@@ -19,8 +19,8 @@ installed under:
 Download and install the latest release:
 
 ```sh
-curl -LO 'https://github.com/utah27397/dwarf-fortress-0.47.05-linux-x86_64-packaging/releases/latest/download/dwarf-fortress-0.47.05_0.47.05-1df04705.1_amd64.deb'
-sudo apt install './dwarf-fortress-0.47.05_0.47.05-1df04705.1_amd64.deb'
+curl -LO 'https://github.com/utah27397/dwarf-fortress-0.47.05-linux-x86_64-packaging/releases/latest/download/dwarf-fortress-0.47.05_0.47.05-1df04705.2_amd64.deb'
+sudo apt install './dwarf-fortress-0.47.05_0.47.05-1df04705.2_amd64.deb'
 ```
 
 Run the game:
@@ -35,7 +35,7 @@ Build locally instead:
 git clone --recursive https://github.com/utah27397/dwarf-fortress-0.47.05-linux-x86_64-packaging.git
 cd dwarf-fortress-0.47.05-linux-x86_64-packaging
 make build
-sudo apt install '../dwarf-fortress-0.47.05_0.47.05-1df04705.1_amd64.deb'
+sudo apt install '../dwarf-fortress-0.47.05_0.47.05-1df04705.2_amd64.deb'
 ```
 
 Build the package:
@@ -48,7 +48,7 @@ make build
 The default output path is:
 
 ```text
-../dwarf-fortress-0.47.05_0.47.05-1df04705.1_amd64.deb
+../dwarf-fortress-0.47.05_0.47.05-1df04705.2_amd64.deb
 ```
 
 Runtime data and raws are copied into the user's data tree on first launch and
