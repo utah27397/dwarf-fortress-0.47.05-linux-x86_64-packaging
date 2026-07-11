@@ -2,7 +2,6 @@
 set -eu
 
 APPNAME="dwarf-fortress-0.47.05"
-LEGACY_APPNAMES="dwarf-fortress-47.05 dwarf-fortress-local"
 SYSTEMDIR="/opt/dwarf-fortress-0.47.05"
 DATAROOT="${XDG_DATA_HOME:-$HOME/.local/share}"
 USERDATADIR="$DATAROOT/$APPNAME"
@@ -64,25 +63,11 @@ seed_mutable_tree() {
     fi
 }
 
-merge_legacy_tree() {
-    src="$1"
-    dest="$2"
-
-    [ -d "$src" ] || return 0
-    [ ! -L "$src" ] || return 0
-
-    mkdir -p "$dest"
-    cp -a -n "$src/." "$dest/"
-}
-
 mkdir -p "$USERDATADIR"
 chmod 700 "$USERDATADIR"
 
 for name in $MUTABLE_TOPLEVEL; do
     seed_mutable_tree "$SYSTEMDIR/$name" "$USERDATADIR/$name"
-    for legacy_appname in $LEGACY_APPNAMES; do
-        merge_legacy_tree "$DATAROOT/$legacy_appname/$name" "$USERDATADIR/$name"
-    done
 done
 
 find "$USERDATADIR" -type d -exec chmod 700 {} \;
