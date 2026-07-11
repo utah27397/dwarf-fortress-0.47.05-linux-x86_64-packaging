@@ -1,3 +1,3 @@
-[submodule "upstream/dwarf-fortress-linux"]
-	path = upstream/dwarf-fortress-linux
+[submodule "upstream/dwarf-fortress-0.47.05-linux-x86_64-archive"]
+	path = upstream/dwarf-fortress-0.47.05-linux-x86_64-archive
 	url = https://github.com/utah27397/dwarf-fortress-0.47.05-linux-x86_64-archive.git

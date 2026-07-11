@@ -4,7 +4,7 @@ PACKAGE := $(shell awk '$$1 == "Package:" { print $$2; exit }' DEBIAN/control)
 VERSION := $(shell awk '$$1 == "Version:" { print $$2; exit }' DEBIAN/control)
 ARCH := $(shell awk '$$1 == "Architecture:" { print $$2; exit }' DEBIAN/control)
 OUTPUT ?= ../$(PACKAGE)_$(VERSION)_$(ARCH).deb
-DF_ARCHIVE_DIR ?= upstream/dwarf-fortress-linux
+DF_ARCHIVE_DIR ?= upstream/dwarf-fortress-0.47.05-linux-x86_64-archive
 DF_ARCHIVE_COMMIT := 19c0b532af2df8532cc6cbb6c7b558925d48c756
 DF_INSTALL_DIR ?= opt/dwarf-fortress-0.47.05
 DF_MUTABLE_TOPLEVEL ?= data raw

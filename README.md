@@ -5,7 +5,10 @@ release.
 
 This repository contains only packaging metadata, maintainer scripts, launchers,
 and the fixed source archive submodule. The packaged game files come from the
-pinned archive at `upstream/dwarf-fortress-linux` and are installed under:
+pinned
+[Dwarf Fortress 0.47.05 Linux x86_64 archive](https://github.com/utah27397/dwarf-fortress-0.47.05-linux-x86_64-archive)
+submodule at `upstream/dwarf-fortress-0.47.05-linux-x86_64-archive` and are
+installed under:
 
 ```text
 /opt/dwarf-fortress-0.47.05
