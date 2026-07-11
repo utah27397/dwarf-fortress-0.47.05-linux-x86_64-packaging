@@ -11,6 +11,30 @@ pinned archive at `upstream/dwarf-fortress-linux` and are installed under:
 /opt/dwarf-fortress-0.47.05
 ```
 
+## Quick Start
+
+Download and install the latest release:
+
+```sh
+curl -LO 'https://github.com/utah27397/dwarf-fortress-0.47.05-linux-x86_64-packaging/releases/latest/download/dwarf-fortress-0.47.05_0.47.05-1df04705.1_amd64.deb'
+sudo apt install './dwarf-fortress-0.47.05_0.47.05-1df04705.1_amd64.deb'
+```
+
+Run the game:
+
+```sh
+dwarffortress
+```
+
+Build locally instead:
+
+```sh
+git clone --recursive https://github.com/utah27397/dwarf-fortress-0.47.05-linux-x86_64-packaging.git
+cd dwarf-fortress-0.47.05-linux-x86_64-packaging
+make build
+sudo apt install '../dwarf-fortress-0.47.05_0.47.05-1df04705.1_amd64.deb'
+```
+
 Build the package:
 
 ```sh
