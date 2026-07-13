@@ -16,7 +16,19 @@ installed under:
 
 ## Quick Start
 
-Download and install the latest release:
+Install from the shared APT repository:
+
+```sh
+curl -fsSL https://utah27397.github.io/dwarf-fortress-0.47.05-apt-repository/df04705-packaging.sources \
+  -o /tmp/df04705-packaging.sources
+sudo install -o root -g root -m 0644 /tmp/df04705-packaging.sources \
+  /etc/apt/sources.list.d/df04705-packaging.sources
+rm /tmp/df04705-packaging.sources
+sudo apt-get update
+sudo apt-get install dwarf-fortress-0.47.05
+```
+
+Alternatively, download and install the latest release directly:
 
 ```sh
 curl -LO 'https://github.com/utah27397/dwarf-fortress-0.47.05-linux-x86_64-packaging/releases/latest/download/dwarf-fortress-0.47.05_0.47.05-1df04705.2_amd64.deb'
